@@ -165,6 +165,7 @@ If you encounter issues:
 1. Run system checks:
 ```bash
 python system_check.py
+
 ```
 
 2. Verify all models are present in the Models directory
