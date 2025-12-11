@@ -4,14 +4,15 @@ import { PatientFeatures, PredictionResponse } from '../types';
 // Base API configuration
 // In development: use proxy (empty string => proxy in package.json).
 // In production: use full URL from REACT_APP_API_BASE set in Vercel.
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? (process.env.REACT_APP_API_BASE || 'http://localhost:9000')
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? (process.env.REACT_APP_API_BASE ?? 'https://neurotrace-api.onrender.com')
   : '';
+
 
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 120000, // Reduced to 10 seconds for faster testing
+  timeout: 30000, // Reduced to 10 seconds for faster testing
   headers: {
     'Content-Type': 'application/json',
   },
