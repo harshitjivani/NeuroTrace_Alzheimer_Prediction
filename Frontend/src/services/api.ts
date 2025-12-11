@@ -2,10 +2,12 @@ import axios, { AxiosResponse } from 'axios';
 import { PatientFeatures, PredictionResponse } from '../types';
 
 // Base API configuration
-// In development, use proxy. In production, use full URL
+// In development: use proxy (empty string => proxy in package.json).
+// In production: use full URL from REACT_APP_API_BASE set in Vercel.
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? (process.env.REACT_APP_API_URL || 'http://localhost:9000')
-  : ''; // Empty string uses the proxy defined in package.json
+  ? (process.env.REACT_APP_API_BASE || 'http://localhost:9000')
+  : '';
+
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -130,7 +132,8 @@ export class ApiService {
     
     const formData = new FormData();
     formData.append('file', imageFile);
-    formData.append('features', JSON.stringify(features));
+    formData.append('features_json', JSON.stringify(features));
+
 
     const response: AxiosResponse<PredictionResponse> = await apiClient.post('/predict/ensemble', formData, {
       headers: {

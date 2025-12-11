@@ -15,7 +15,8 @@ import uvicorn
 import pandas as pd
 import logging
 from PIL import Image
-
+import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 load_dotenv()  # this loads Deployment/.env automatically
@@ -25,8 +26,7 @@ load_dotenv()  # this loads Deployment/.env automatically
 # -------------------
 # Google Drive download helper (paste here, after imports)
 # -------------------
-import os
-from pathlib import Path
+
 
 # Local models directory (repo root /Models)
 BASE_DIR = Path(__file__).resolve().parent        # <repo>/Deployment
