@@ -16,6 +16,106 @@ import pandas as pd
 import logging
 from PIL import Image
 
+
+from dotenv import load_dotenv
+load_dotenv()  # this loads Deployment/.env automatically
+
+# changes
+
+# -------------------
+# Google Drive download helper (paste here, after imports)
+# -------------------
+import os
+from pathlib import Path
+
+# Local models directory (repo root /Models)
+BASE_DIR = Path(__file__).resolve().parent        # <repo>/Deployment
+REPO_ROOT = BASE_DIR.parent                       # <repo>
+LOCAL_MODEL_DIR = REPO_ROOT / "Models"
+LOCAL_MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+# Default filenames you expect in Models/ (match your README)
+LOCAL_CNN_FILENAME = "convnext_handwriting_best.keras"
+LOCAL_MLP_FILENAME = "mlp_dementia_model.h5"
+LOCAL_PREPROC_FILENAME = "preprocessor.pkl"
+LOCAL_META_FILENAME = "meta_xgb_safe.pkl"
+
+# Environment variable names Render will use (set these in Render dashboard)
+GDRIVE_DENSENET_ID = os.environ.get("GDRIVE_DENSENET_ID")
+GDRIVE_MLP_ID = os.environ.get("GDRIVE_MLP_ID")
+GDRIVE_PREPROC_ID = os.environ.get("GDRIVE_PREPROC_ID")
+GDRIVE_META_ID = os.environ.get("GDRIVE_META_ID")
+
+# Try to import gdown (will be installed via requirements). If not available, we fall back.
+try:
+    import gdown
+    _HAS_GDOWN = True
+except Exception:
+    _HAS_GDOWN = False
+
+def gdrive_download_if_missing(file_id: str, local_filename: str) -> str:
+    """Download a Google Drive file (public/shareable) given file_id into LOCAL_MODEL_DIR if missing.
+       Returns full local path (string)."""
+    dest = LOCAL_MODEL_DIR / local_filename
+    if dest.exists():
+        return str(dest)
+    if not file_id:
+        raise RuntimeError(f"No file id provided for {local_filename} and file missing in repo.")
+    if not _HAS_GDOWN:
+        raise RuntimeError("gdown not installed. Add 'gdown' to requirements.txt.")
+    url = f"https://drive.google.com/uc?id={file_id}"
+    try:
+        gdown.download(url, str(dest), quiet=False)
+    except Exception:
+        # fallback fuzzy attempt
+        gdown.download(url, str(dest), quiet=False, fuzzy=True)
+    if not dest.exists():
+        raise RuntimeError(f"Failed to download {local_filename} from Google Drive id {file_id}")
+    return str(dest)
+
+def prepare_model_paths():
+    """Return paths for CNN, MLP, preprocessor and meta models.
+       Priority:
+         1) If GDRIVE_* env var present -> download into LOCAL_MODEL_DIR (if missing).
+         2) Else if file exists at ../Models/... -> use that path (local dev).
+         3) Else return None for that model.
+    """
+    REL_CNN = os.path.join("..", "Models", LOCAL_CNN_FILENAME)
+    REL_MLP = os.path.join("..", "Models", LOCAL_MLP_FILENAME)
+    REL_PRE = os.path.join("..", "Models", LOCAL_PREPROC_FILENAME)
+    REL_META = os.path.join("..", "Models", LOCAL_META_FILENAME)
+
+    # CNN
+    cnn_path = None
+    if GDRIVE_DENSENET_ID:
+        cnn_path = gdrive_download_if_missing(GDRIVE_DENSENET_ID, LOCAL_CNN_FILENAME)
+    elif os.path.exists(REL_CNN):
+        cnn_path = os.path.abspath(REL_CNN)
+
+    # MLP
+    mlp_path = None
+    if GDRIVE_MLP_ID:
+        mlp_path = gdrive_download_if_missing(GDRIVE_MLP_ID, LOCAL_MLP_FILENAME)
+    elif os.path.exists(REL_MLP):
+        mlp_path = os.path.abspath(REL_MLP)
+
+    # Preprocessor
+    preproc_path = None
+    if GDRIVE_PREPROC_ID:
+        preproc_path = gdrive_download_if_missing(GDRIVE_PREPROC_ID, LOCAL_PREPROC_FILENAME)
+    elif os.path.exists(REL_PRE):
+        preproc_path = os.path.abspath(REL_PRE)
+
+    # Meta
+    meta_path = None
+    if GDRIVE_META_ID:
+        meta_path = gdrive_download_if_missing(GDRIVE_META_ID, LOCAL_META_FILENAME)
+    elif os.path.exists(REL_META):
+        meta_path = os.path.abspath(REL_META)
+
+    return cnn_path, mlp_path, preproc_path, meta_path
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -154,6 +254,30 @@ class PatientFeatures(BaseModel):
 # -------------------
 def load_models_if_needed():
     global cnn_model, mlp_model, preprocessor, meta_model
+
+        # --- ADD THIS AT TOP OF load_models_if_needed() ---
+    # Prepare and/or download model files if necessary (will use env vars or local ../Models/)
+    try:
+        cnn_path, mlp_path, preproc_path, meta_path = prepare_model_paths()
+    except Exception as e:
+        logger.error(f"Preparing model paths failed: {e}")
+        raise
+
+    # If prepare_model_paths returned a path, use it; otherwise keep the existing defaults
+    if cnn_path:
+        global CNN_MODEL_PATH
+        CNN_MODEL_PATH = cnn_path
+    if mlp_path:
+        global MLP_MODEL_PATH
+        MLP_MODEL_PATH = mlp_path
+    if preproc_path:
+        global PREPROCESSOR_PATH
+        PREPROCESSOR_PATH = preproc_path
+    if meta_path:
+        global META_MODEL_PATH
+        META_MODEL_PATH = meta_path
+    # --- end snippet ---
+
 
     try:
         if cnn_model is None:

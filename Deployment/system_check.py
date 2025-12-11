@@ -56,7 +56,7 @@ def check_project_structure():
         "main.py",
         "requirements.txt",
         "../Models/",
-        "../Datasets/"
+        
     ]
     
     all_exist = True

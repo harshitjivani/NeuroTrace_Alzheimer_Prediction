@@ -10,4 +10,7 @@ joblib
 pandas
 scikit-learn
 python-multipart
+python-dotenv
+gdown
+
 
