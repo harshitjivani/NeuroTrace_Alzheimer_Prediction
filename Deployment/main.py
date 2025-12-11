@@ -19,6 +19,9 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# Reduce TF logging noise (optional)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 load_dotenv()  # this loads Deployment/.env automatically
 
 # changes

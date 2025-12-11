@@ -3,8 +3,8 @@ uvicorn[standard]
 numpy
 shap
 opencv-python
-tensorflow
-keras
+tensorflow-cpu==2.13.1
+# note: no separate 'keras' package; use tf.keras from tensorflow-cpu
 xgboost
 joblib
 pandas
@@ -13,5 +13,3 @@ python-multipart
 python-dotenv
 gdown
 gunicorn
-
-
