@@ -32,6 +32,7 @@
 # Other binaries
 *.bin
 *.weights
+*.env
 
 # Keep the .gitignore itself
 !.gitignore
