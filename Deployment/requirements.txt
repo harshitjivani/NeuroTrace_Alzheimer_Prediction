@@ -12,5 +12,6 @@ scikit-learn
 python-multipart
 python-dotenv
 gdown
+gunicorn
 
 
