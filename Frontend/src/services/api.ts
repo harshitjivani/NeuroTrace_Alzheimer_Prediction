@@ -5,7 +5,7 @@ import { PatientFeatures, PredictionResponse } from '../types';
 // In development: use proxy (empty string => proxy in package.json).
 // In production: use full URL from REACT_APP_API_BASE set in Vercel.
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? (process.env.REACT_APP_API_BASE ?? 'https://neurotrace-api.onrender.com')
+  ? (process.env.REACT_APP_API_BASE ?? 'https://neurotrace-alzheimer-prediction.onrender.com')
   : '';
 
 
