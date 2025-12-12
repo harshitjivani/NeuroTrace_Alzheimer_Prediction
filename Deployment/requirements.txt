@@ -3,7 +3,7 @@ uvicorn[standard]
 numpy
 shap
 opencv-python
-tensorflow-cpu==2.20.0
+tensorflow
 xgboost
 joblib
 pandas
@@ -13,3 +13,4 @@ python-multipart
 python-dotenv
 gdown
 gunicorn
+dill
