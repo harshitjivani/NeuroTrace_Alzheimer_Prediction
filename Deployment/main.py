@@ -18,24 +18,33 @@ from tensorflow.keras.models import load_model
 import joblib
 import uvicorn
 import pandas as pd
-import logging
+
 from PIL import Image
 
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()  # this loads Deployment/.env automatically
+  # this loads Deployment/.env automatically
+import sys
+import logging
+
+# --- Logging setup (must be created before any logger.info calls) ---
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
+
+# Optional small debug printed at import-time to help Render detect runtime issues
+logger.info("Python version: " + sys.version.replace("\n", " "))
+logger.info("Working dir: " + os.getcwd())
+logger.info("PORT env: " + str(os.environ.get("PORT")))
 
 # changes
 
 # -------------------
 # Google Drive download helper (paste here, after imports)
 # -------------------
+load_dotenv()
 
-logger.info("Python version: " + sys.version.replace("\n"," "))
-logger.info("Working dir: " + os.getcwd())
-logger.info("PORT env: " + str(os.environ.get("PORT")))
 
 
 # Local models directory (repo root /Models)
