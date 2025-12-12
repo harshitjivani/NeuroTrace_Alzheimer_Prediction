@@ -33,6 +33,10 @@ load_dotenv()  # this loads Deployment/.env automatically
 # Google Drive download helper (paste here, after imports)
 # -------------------
 
+logger.info("Python version: " + sys.version.replace("\n"," "))
+logger.info("Working dir: " + os.getcwd())
+logger.info("PORT env: " + str(os.environ.get("PORT")))
+
 
 # Local models directory (repo root /Models)
 BASE_DIR = Path(__file__).resolve().parent        # <repo>/Deployment
@@ -973,10 +977,8 @@ async def startup_event():
 # Run API
 # =============================
 if __name__ == "__main__":
-    logger.info("🏆 Starting Neuro Trace - Perfect Edition!")
-    uvicorn.run(
-        "main:app", 
-        host="0.0.0.0", 
-        port=9000, 
-        reload=False
-    )
+    # Use $PORT when present (Render sets this), otherwise default to 9000 for local dev.
+    import os
+    port = int(os.environ.get("PORT", 9000))
+    logger.info(f"🏆 Starting Neuro Trace - Perfect Edition on 0.0.0.0:{port} (PID={os.getpid()})")
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
