@@ -3,11 +3,12 @@ uvicorn[standard]
 numpy
 shap
 opencv-python
-tensorflow
+tensorflow-cpu==2.20.0
 xgboost
 joblib
 pandas
-scikit-learn
+scikit-learn==1.6.1
+dill
 python-multipart
 python-dotenv
 gdown
